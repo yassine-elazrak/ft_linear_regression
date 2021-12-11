@@ -16,7 +16,7 @@ class Dataset:
             raise ValueError("this file does not exist")
         
     def MinMaxScaler(self, nums):
-        return  nums - self.min / (self.max - self.min)
+        return  (nums - self.min) / (self.max - self.min)
     
     def setup(self):
         self.X = np.array(self.X)
@@ -26,9 +26,10 @@ class Dataset:
         self.max = np.amax(self.X)
         self.min = np.amin(self.X)
         self.X = self.MinMaxScaler(self.X)
+        # print("data X",self.X)
         
-        
-    
+###best val   0.01  10000000
+     
     def read_csv(self):
         with open(self.path_file) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
@@ -42,7 +43,7 @@ class Dataset:
 
 class LinearRegression:
 
-    def __init__(self, learning_rate=0.01, epochs=44):
+    def __init__(self, learning_rate=0.01, epochs=100000):
         self.learning_rate = learning_rate
         self.epochs = epochs
         self.history_losses = []
@@ -61,17 +62,25 @@ class LinearRegression:
         data = json.load(filename)
         return data
 
-    def predict(cls, X, W):
-        return np.dot(X.T, W).T
+    def predict(self, X):
+        return np.dot(X.T, self.W).T
 
     def cost(self, yhat, y):
-        C = 1 / 2 * self.m * np.sum(np.power(yhat - y, 2))
+        C = (1 / (2 * self.m) ) * np.sum(np.power(yhat - y, 2))
         return C
 
     def gradient_descent(self, W, X, Y, yhat):
         D = np.dot(X, (yhat - Y).T) / self.m
         W = W - self.learning_rate * D
         return W
+    def setup_matrix(self,X):
+        if not isinstance(X, np.array):
+            X = np.array(X)
+            
+    def ft_predict(self, X):
+        ones = np.ones((1, X.shape[1]))
+        X = np.append(X, ones, axis=0)
+        return np.dot(X.T, self.W).T
 
     def train(self, X, Y):
         ones = np.ones((1, X.shape[1]))
@@ -80,8 +89,8 @@ class LinearRegression:
         self.n = X.shape[0]
         self.W = np.zeros((self.n, 1))
 
-        for _ in range(self.epoch + 1):
-            yhat = self.predict(X, self.W)
+        for _ in range(self.epochs + 1):
+            yhat = self.predict(X)
             cost = self.cost(yhat, Y)
             self.W = self.gradient_descent(self.W, X, Y, yhat)
         return self.W
@@ -109,7 +118,13 @@ class Plt:
 if __name__ == '__main__':
     path_file = "./data/data.csv"
     dataset = Dataset(path_file)
-    # dataset.read_csv()
-    # lr = LinearRegression()
-    # lr.train(dataset.X, dataset.Y)
-    Plt.plt_predict(dataset.X, dataset.Y)
+    dataset.read_csv()
+    lr = LinearRegression()
+    w = lr.train(dataset.X, dataset.Y)
+    # print(w)
+    # x = np.array([0.21004509, 1])
+    X = lr.ft_predict(dataset.X)
+    
+    for i in range(len(dataset.Y[0])):
+        print(int(X[0][i]),"=", int(dataset.Y[0][i]),end="\n")
+    # Plt.plt_predict(dataset.X, dataset.Y)
