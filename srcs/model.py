@@ -21,6 +21,8 @@ class Dataset:
     def setup(self):
         self.X = np.array(self.X)
         self.Y = np.array(self.Y)
+        self.X_ = self.X
+        self.Y_ = self.Y
         self.X = self.X.reshape((1, len(self.X)))
         self.Y = self.Y.reshape((1, len(self.Y)))
         self.max = np.amax(self.X)
@@ -47,6 +49,7 @@ class LinearRegression:
         self.learning_rate = learning_rate
         self.epochs = epochs
         self.history_losses = []
+        self.history_yhat = []
 
     def save(self, filename):
         with open(filename, 'w') as f:
@@ -82,36 +85,63 @@ class LinearRegression:
         X = np.append(X, ones, axis=0)
         return np.dot(X.T, self.W).T
 
-    def train(self, X, Y):
+    def train(self, X, Y, dataset):
         ones = np.ones((1, X.shape[1]))
         X = np.append(X, ones, axis=0)
         self.m = X.shape[1]
         self.n = X.shape[0]
         self.W = np.zeros((self.n, 1))
-
+        fig, x1 = plt.subplots()
+        yhat = self.predict(X)
+        # lr = x1.plot(yhat[0], dataset.X_, color="r") 
+        # plt.ion()
+        
         for _ in range(self.epochs + 1):
+            
             yhat = self.predict(X)
             cost = self.cost(yhat, Y)
+            # self.history_yhat.append(y)
+            if _ % 100 == 0 :
+                plt.clf()
+                ft_plt(dataset, yhat)
+                plt.pause(0.01)
+                print("plt ===> clear")
             self.W = self.gradient_descent(self.W, X, Y, yhat)
+        # plt.ioff()    
+        # plt.show()
         return self.W
-class Plt:
+# class Plt:
     
-    @classmethod
-    def plt_loss(cls, loss):
-        pass
+#     @classmethod
+#     def plt_loss(cls, loss):
+#         pass
     
-    @classmethod
-    def plt_predict(cls, x, y):
+#     @classmethod
+#     def plt_predict(cls, x, y):
        
-        plt.scatter([1, 2, 3, 2, 5, 3, 7, 8, 9, 10, 11, 12],[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
-        plt.plot([])
-        # plt.scatter(x,y, label="high bp low heartrate",color="r")
+#         plt.scatter([1, 2, 3, 2, 5, 3, 7, 8, 9, 10, 11, 12],[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+#         plt.plot([])
+#         # plt.scatter(x,y, label="high bp low heartrate",color="r")
         
-        plt.ylabel("y_labl")
-        plt.xlabel("x_labl")
-        plt.title("plot_data")
-        plt.legend()
-        plt.show()
+#         plt.ylabel("y_labl")
+#         plt.xlabel("x_labl")
+#         plt.title("plot_data")
+#         plt.legend()
+#         plt.show()
+
+
+def ft_plt(dataset, y):
+    
+    plt.scatter(dataset.Y_, dataset.X_)
+    plt.plot(y[0], dataset.X_, color="r") 
+    plt.ylabel("y_labl")
+    plt.xlabel("x_labl")
+    plt.title("plot_data")
+    # plt.legend()
+  
+    # plt.show()
+    # plt.clf()
+    
         
 
 
@@ -120,11 +150,20 @@ if __name__ == '__main__':
     dataset = Dataset(path_file)
     dataset.read_csv()
     lr = LinearRegression()
-    w = lr.train(dataset.X, dataset.Y)
+    w = lr.train(dataset.X, dataset.Y, dataset)
     # print(w)
     # x = np.array([0.21004509, 1])
     X = lr.ft_predict(dataset.X)
     
-    for i in range(len(dataset.Y[0])):
-        print(int(X[0][i]),"=", int(dataset.Y[0][i]),end="\n")
-    # Plt.plt_predict(dataset.X, dataset.Y)
+    # # for i in range(len(dataset.Y[0])):
+    # #     print(int(X[0][i]),"=", int(dataset.Y[0][i]),end="\n")
+    # # Plt.plt_predict(dataset.X, dataset.Y)
+    # plt.scatter(dataset.Y_, dataset.X_)
+    # plt.plot(X[0], dataset.X_ )
+    #     # plt.scatter(x,y, label="high bp low heartrate",color="r")
+        
+    # plt.ylabel("y_labl")
+    # plt.xlabel("x_labl")
+    # plt.title("plot_data")
+    # plt.legend()
+    # plt.show()
