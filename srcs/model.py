@@ -45,12 +45,13 @@ class Dataset:
 
 class LinearRegression:
 
-    def __init__(self, dataset=None, learning_rate=0.01, epochs=100000):
+    def __init__(self, dataset=None,visual=False, learning_rate=0.01, epochs=100000):
         self.dataset = dataset
         self.learning_rate = learning_rate
         self.epochs = epochs
         self.history_losses = []
         self.history_yhat = []
+        self.visual = visual
 
     def save(self, filename):
         with open(filename, 'w') as f:
@@ -98,7 +99,7 @@ class LinearRegression:
             yhat = self.predict(dataset.X)
             cost = self.cost(yhat, self.dataset.Y)
             # self.history_yhat.append(y)
-            if _ % 100 == 0:
+            if self.visual and not  _ % 100:
                 self.plt(yhat)
             self.W = self.gradient_descent(
                 self.W, self.dataset.X, self.dataset.Y, yhat)
@@ -109,9 +110,9 @@ class LinearRegression:
         plt.clf()
         plt.scatter(self.dataset.Y_, self.dataset.X_)
         plt.plot(y[0], self.dataset.X_, color="r")
-        plt.ylabel("y_labl")
-        plt.xlabel("x_labl")
-        plt.title("plot_data")
+        plt.ylabel("price")
+        plt.xlabel("km")
+        plt.title("visualisation training ")
         plt.pause(0.01)
 
 
@@ -119,9 +120,9 @@ if __name__ == '__main__':
     path_file = "./data/data.csv"
     dataset = Dataset(path_file)
     dataset.read_csv()
-    lr = LinearRegression(dataset)
+    lr = LinearRegression(dataset, visual=True)
     lr.train()
-    X = lr.ft_predict(dataset.X)
+    # X = lr.ft_predict(dataset.X)
 
     # # for i in range(len(dataset.Y[0])):
     # #     print(int(X[0][i]),"=", int(dataset.Y[0][i]),end="\n")
